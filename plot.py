@@ -146,15 +146,20 @@ def get_astronomical_data(place, time, mode="visible"):
         # Build line segments for constellation lines
         for h1, h2 in edges:
             if h1 in stars.index and h2 in stars.index:
-                if visible.loc[h1] and visible.loc[h2]:
+                # Draw line if at least one star is visible (extends to horizon edge)
+                if visible.loc[h1] or visible.loc[h2]:
                     x1, y1 = stars.at[h1, "x"], stars.at[h1, "y"]
                     x2, y2 = stars.at[h2, "x"], stars.at[h2, "y"]
                     segs.append([(x1, y1), (x2, y2)])
-                    xs_for_label.extend([x1, x2])
-                    ys_for_label.extend([y1, y2])
-                    # Add these stars to constellation star set
-                    constellation_star_ids.add(h1)
-                    constellation_star_ids.add(h2)
+                    # Only use visible stars for label positioning
+                    if visible.loc[h1]:
+                        xs_for_label.extend([x1])
+                        ys_for_label.extend([y1])
+                        constellation_star_ids.add(h1)
+                    if visible.loc[h2]:
+                        xs_for_label.extend([x2])
+                        ys_for_label.extend([y2])
+                        constellation_star_ids.add(h2)
 
         if segs:
             constellation_edges_xy.extend(segs)
@@ -191,9 +196,15 @@ def plot_sky_on_axis(ax, data, limiting_magnitude, title_suffix=""):
     visible_constellations = data["visible_constellations"]
     constellation_star_ids = data["constellation_star_ids"]
 
-    # --- Draw constellation lines ---
+    # --- Draw constellation lines with circular clipping ---
     if constellation_edges_xy:
-        lc = LineCollection(constellation_edges_xy, colors="#ebcc34", linewidths=0.6)
+        lc = LineCollection(
+            constellation_edges_xy, colors="#ebcc34", linewidths=0.6, zorder=2
+        )
+        # Clip lines to horizon circle
+        R = 2.0
+        clip_circle = plt.Circle((0, 0), R, transform=ax.transData, facecolor="none")
+        lc.set_clip_path(clip_circle)
         ax.add_collection(lc)
 
     # --- Plot visible stars with size ~ brightness ---
@@ -349,6 +360,7 @@ def plot_sky_on_axis(ax, data, limiting_magnitude, title_suffix=""):
 
     # --- Final formatting ---
     ax.set_aspect("equal", adjustable="box")
+    ax.set_facecolor("#010057")  # Dark blue background
     ax.axis("off")
 
     # Add subplot title

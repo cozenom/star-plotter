@@ -41,13 +41,18 @@ for city, timezone in cities:
 
     print(f"Next night's sky: {local_midnight.strftime('%Y-%m-%d %H:%M %Z')}")
 
-    # Generate the plot
+    # Generate the plot (save to daily/ subfolder)
+    filename = f"daily/{city.replace(' ', '_').lower()}_visible.png"
     plot_constellations(
-        place=city, time=local_midnight, mode="visible", limiting_magnitude=6.0
+        place=city,
+        time=local_midnight,
+        mode="visible",
+        limiting_magnitude=6.0,
+        fname=filename,
     )
 
     print(f"✓ {city} complete")
-    time.sleep(1)
+    time.sleep(2)
 
 print("\n" + "=" * 60)
 print("All daily sky generations complete!")

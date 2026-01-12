@@ -40,7 +40,7 @@ jobs:
       run: |
         git config --local user.email "gunther@github.com"
         git config --local user.name "gunther"
-        git add images/
+        git add images/daily/
         git diff --quiet && git diff --staged --quiet || (git commit -m "Update daily sky images - $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
