@@ -10,7 +10,6 @@ Demonstrates different parameters and use cases
 print("=" * 60)
 print("PLOT_CONSTELLATIONS SHOWCASE")
 print("=" * 60)
-plot_constellations()
 
 # Example 1: Basic - current visible sky
 print("\n1. Basic example - Reykjavik visible sky (current time)")

@@ -11,7 +11,6 @@ from matplotlib.collections import LineCollection
 from skyfield.api import Star, load, wgs84
 from skyfield.data import hipparcos, stellarium
 
-
 # --- Load static astronomical data once at module level ---
 print("Loading astronomical data...")
 
@@ -420,7 +419,7 @@ def plot_constellations(
         plt.tight_layout()
 
         # Save the image
-        filename = fname if fname else f"constellations_both_sides_{place}.png"
+        filename = fname if fname else f"{place.replace(" ", "_").lower()}_{mode}.png"
         print(filename)
         os.makedirs("./images", exist_ok=True)
         plt.savefig(f"./images/{filename}", dpi=200, bbox_inches="tight")
@@ -447,7 +446,7 @@ def plot_constellations(
     plt.tight_layout()
 
     # Save the image
-    filename = fname if fname else f"{mode}_constellations_{place}.png"
+    filename = fname if fname else f"{place.replace(" ", "_").lower()}_{mode}.png"
     print(filename)
     os.makedirs("./images", exist_ok=True)
     plt.savefig(f"./images/{filename}", dpi=200, bbox_inches="tight")
