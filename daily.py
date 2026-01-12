@@ -1,6 +1,8 @@
-from plot import plot_constellations
+import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
+from plot import plot_constellations
 
 """
 Daily automated sky generation script
@@ -41,13 +43,11 @@ for city, timezone in cities:
 
     # Generate the plot
     plot_constellations(
-        place=city,
-        time=local_midnight,
-        mode="visible",
-        limiting_magnitude=6.0
+        place=city, time=local_midnight, mode="visible", limiting_magnitude=6.0
     )
 
     print(f"✓ {city} complete")
+    time.sleep(1)
 
 print("\n" + "=" * 60)
 print("All daily sky generations complete!")
