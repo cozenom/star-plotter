@@ -419,7 +419,7 @@ def plot_constellations(
         plt.tight_layout()
 
         # Save the image
-        filename = fname if fname else f"{place.replace(" ", "_").lower()}_{mode}.png"
+        filename = fname if fname else f"{place.replace(' ', '_').lower()}_{mode}.png"
         print(filename)
         os.makedirs("./images", exist_ok=True)
         plt.savefig(f"./images/{filename}", dpi=200, bbox_inches="tight")
@@ -446,7 +446,7 @@ def plot_constellations(
     plt.tight_layout()
 
     # Save the image
-    filename = fname if fname else f"{place.replace(" ", "_").lower()}_{mode}.png"
+    filename = fname if fname else f"{place.replace(' ', '_').lower()}_{mode}.png"
     print(filename)
     os.makedirs("./images", exist_ok=True)
     plt.savefig(f"./images/{filename}", dpi=200, bbox_inches="tight")
