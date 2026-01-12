@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from plot import plot_constellations
@@ -34,12 +34,12 @@ for city, timezone in cities:
     print(f"Generating sky for {city} at midnight local time")
     print(f"Timezone: {timezone}")
 
-    # Set time to midnight local time for this city
-    local_midnight = datetime.now(ZoneInfo(timezone)).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
+    # Set time to next midnight (tomorrow night) local time for this city
+    now_local = datetime.now(ZoneInfo(timezone))
+    tomorrow = now_local + timedelta(days=1)
+    local_midnight = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    print(f"Local midnight: {local_midnight.strftime('%Y-%m-%d %H:%M %Z')}")
+    print(f"Next night's sky: {local_midnight.strftime('%Y-%m-%d %H:%M %Z')}")
 
     # Generate the plot
     plot_constellations(
