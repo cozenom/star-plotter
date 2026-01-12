@@ -1,0 +1,36 @@
+name: Generate Daily Night Sky Images
+
+on:
+  schedule:
+    # Runs daily at midnight UTC (00:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  generate-sky:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install skyfield geopy matplotlib numpy
+
+    - name: Generate night sky images
+      run: python daily.py
+
+    - name: Commit and push updated images
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action Bot"
+        git add images/
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update daily sky images - $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
