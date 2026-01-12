@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime, timezone
+from functools import lru_cache
 
 import matplotlib.patheffects as path_effects
 import numpy as np
@@ -46,6 +47,7 @@ def stereographic_from_altaz(alt_deg, az_deg):
 
 
 # --- Get Place Coordinates ---
+@lru_cache(maxsize=128)
 def getloc(name: str):
     geolocator = Nominatim(user_agent="locfinder")
     location = geolocator.geocode(name)
