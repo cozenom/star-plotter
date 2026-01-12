@@ -9,6 +9,8 @@ on:
 jobs:
   generate-sky:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout repository
@@ -23,13 +25,21 @@ jobs:
       run: |
         pip install skyfield geopy matplotlib numpy pandas
 
+    - name: Cache Skyfield astronomical data
+      uses: actions/cache@v3
+      with:
+        path: ~/.skyfield
+        key: skyfield-data-${{ hashFiles('plot.py') }}
+        restore-keys: |
+          skyfield-data-
+
     - name: Generate night sky images
       run: python daily.py
 
     - name: Commit and push updated images
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action Bot"
+        git config --local user.email "gunther@github.com"
+        git config --local user.name "gunther"
         git add images/
         git diff --quiet && git diff --staged --quiet || (git commit -m "Update daily sky images - $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
       env:
