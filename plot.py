@@ -41,12 +41,12 @@ def get_antipodal(lat, long):
     return -lat, (long + 180) if long < 0 else (long - 180)
 
 
-def get_astronomical_data(place, time, plot_visible=True):
+def get_astronomical_data(place, time, mode="visible"):
     # --- Location setup ---
     LAT, LON, ELEV_M = getloc(place)
     original_coords = (LAT, LON)
 
-    if not plot_visible:
+    if mode == "nonvisible":
         LAT, LON = get_antipodal(LAT, LON)
     ELEV_M = 0  # Set elevation to 0 for consistent behavior
 
@@ -371,13 +371,13 @@ def plot_constellations(
     limiting_magnitude=6.0,
     time=None,
     fname=None,
-    plot_visible=True,
+    mode="visible",
 ):
     # --- Side-by-side case ---
-    if plot_visible == "both":
+    if mode == "both":
         # Get astronomical data for both views
-        visible_data = get_astronomical_data(place, time, plot_visible=True)
-        not_visible_data = get_astronomical_data(place, time, plot_visible=False)
+        visible_data = get_astronomical_data(place, time, mode="visible")
+        not_visible_data = get_astronomical_data(place, time, mode="nonvisible")
 
         # Create side-by-side plot
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 12))
@@ -409,7 +409,7 @@ def plot_constellations(
 
     # --- Single view case ---
     # Get astronomical data
-    data = get_astronomical_data(place, time, plot_visible)
+    data = get_astronomical_data(place, time, mode)
 
     # Create single plot
     fig, ax = plt.subplots(figsize=(12, 12))
@@ -421,17 +421,13 @@ def plot_constellations(
     # Add title
     LAT, LON = data["coords"]
     current_time = time or datetime.now(timezone.utc)
-    title = f'{"Visible" if plot_visible else "Not Visible"} Constellations {place} — {current_time.astimezone().strftime("%Y-%m-%d %H:%M %Z")}\nLat {LAT:.4f}, Lon {LON:.4f}'
+    title = f'{"Visible" if mode == "visible" else "Not Visible"} Constellations {place} — {current_time.astimezone().strftime("%Y-%m-%d %H:%M %Z")}\nLat {LAT:.4f}, Lon {LON:.4f}'
     ax.set_title(title, fontsize=18, color="#FFFFFF", pad=14)
 
     plt.tight_layout()
 
     # Save the image
-    filename = (
-        fname
-        if fname
-        else f"{'visible' if plot_visible else 'not_visible'}_constellations_{place}.png"
-    )
+    filename = fname if fname else f"{mode}_constellations_{place}.png"
     print(filename)
     os.makedirs("./images", exist_ok=True)
     plt.savefig(f"./images/{filename}", dpi=200, bbox_inches="tight")
