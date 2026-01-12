@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 from skyfield.api import Star, load, wgs84
 from skyfield.data import hipparcos, stellarium
+from timezonefinder import TimezoneFinder
+from zoneinfo import ZoneInfo
 
 # --- Load static astronomical data once at module level ---
 print("Loading astronomical data...")
@@ -31,6 +33,9 @@ with load.open("./constellationship.fab") as f:
 # Load constellation names
 with load.open("./constellation_abbreviations.json") as f:
     _CONST_NAMES = json.load(f)
+
+# Initialize timezone finder
+_TF = TimezoneFinder()
 
 print("Astronomical data loaded successfully!")
 
@@ -170,6 +175,11 @@ def get_astronomical_data(place, time, mode="visible"):
                     np.median(ys_for_label),
                 )
 
+    # --- Get timezone for the original location ---
+    # Note: original_coords is (LON, LAT) because getloc returns (longitude, latitude)
+    orig_lon, orig_lat = original_coords
+    timezone_str = _TF.timezone_at(lat=orig_lat, lng=orig_lon)
+
     # --- Return all data needed for plotting ---
     return {
         "stars": stars,
@@ -182,6 +192,7 @@ def get_astronomical_data(place, time, mode="visible"):
         "coords": (LAT, LON),
         "original_coords": original_coords,
         "time": t,
+        "timezone": timezone_str,
     }
 
 
@@ -422,10 +433,20 @@ def plot_constellations(
             ax2, not_visible_data, limiting_magnitude, "Not Visible"
         )
 
-        # Add main title
+        # Add main title with location's local time
         LAT, LON = visible_data["original_coords"]
         current_time = time or datetime.now(timezone.utc)
-        main_title = f'Sky View from {place} — {current_time.astimezone().strftime("%Y-%m-%d %H:%M %Z")}\nLat {LAT:.4f}, Lon {LON:.4f}'
+        location_tz = visible_data["timezone"]
+
+        # Convert time to location's timezone
+        if location_tz:
+            local_time = current_time.astimezone(ZoneInfo(location_tz))
+            time_str = local_time.strftime("%Y-%m-%d %H:%M %Z")
+        else:
+            # Fallback to UTC if timezone lookup failed
+            time_str = current_time.strftime("%Y-%m-%d %H:%M UTC")
+
+        main_title = f'Sky View from {place} — {time_str}\nLat {LAT:.4f}, Lon {LON:.4f}'
         fig.suptitle(main_title, fontsize=20, color="#FFFFFF", y=0.95)
 
         plt.tight_layout()
@@ -449,10 +470,20 @@ def plot_constellations(
     # Plot the view
     visible_constellations = plot_sky_on_axis(ax, data, limiting_magnitude)
 
-    # Add title
+    # Add title with location's local time
     LAT, LON = data["coords"]
     current_time = time or datetime.now(timezone.utc)
-    title = f'{"Visible" if mode == "visible" else "Not Visible"} Constellations {place} — {current_time.astimezone().strftime("%Y-%m-%d %H:%M %Z")}\nLat {LAT:.4f}, Lon {LON:.4f}'
+    location_tz = data["timezone"]
+
+    # Convert time to location's timezone
+    if location_tz:
+        local_time = current_time.astimezone(ZoneInfo(location_tz))
+        time_str = local_time.strftime("%Y-%m-%d %H:%M %Z")
+    else:
+        # Fallback to UTC if timezone lookup failed
+        time_str = current_time.strftime("%Y-%m-%d %H:%M UTC")
+
+    title = f'{"Visible" if mode == "visible" else "Not Visible"} Constellations {place} — {time_str}\nLat {LAT:.4f}, Lon {LON:.4f}'
     ax.set_title(title, fontsize=18, color="#FFFFFF", pad=14)
 
     plt.tight_layout()

@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install skyfield geopy matplotlib numpy pandas
+        pip install skyfield geopy matplotlib numpy pandas timezonefinder
 
     - name: Cache Skyfield astronomical data
       uses: actions/cache@v3

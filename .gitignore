@@ -6,5 +6,5 @@ hip_main.dat
 __pycache__/*
 
 # Random wip stuff
-ideas.txt
+*.txt
 *_old.py
