@@ -11,6 +11,30 @@ from skyfield.api import Star, load, wgs84
 from skyfield.data import hipparcos, stellarium
 
 
+# --- Load static astronomical data once at module level ---
+print("Loading astronomical data...")
+
+# Load timescale
+_TS = load.timescale()
+
+# Load ephemeris data for planetary positions
+_EPH = load("de421.bsp")
+
+# Load star catalog (Hipparcos)
+with load.open(hipparcos.URL) as f:
+    _STARS_CATALOG = hipparcos.load_dataframe(f)
+
+# Load constellation line data
+with load.open("./constellationship.fab") as f:
+    _CONSTELLATIONS = stellarium.parse_constellations(f)
+
+# Load constellation names
+with load.open("./constellation_abbreviations.json") as f:
+    _CONST_NAMES = json.load(f)
+
+print("Astronomical data loaded successfully!")
+
+
 # --- Stereographic projection (zenith-centered) ---
 def stereographic_from_altaz(alt_deg, az_deg):
     z = np.radians(90.0 - alt_deg)
@@ -51,23 +75,21 @@ def get_astronomical_data(place, time, mode="visible"):
     ELEV_M = 0  # Set elevation to 0 for consistent behavior
 
     # --- Time and observer setup ---
-    ts = load.timescale()
-    t = ts.from_datetime(time or datetime.now(timezone.utc))
+    t = _TS.from_datetime(time or datetime.now(timezone.utc))
 
-    eph = load("de421.bsp")
-    earth = eph["earth"]
+    earth = _EPH["earth"]
     observer = earth + wgs84.latlon(LAT, LON, elevation_m=ELEV_M)
 
     # --- Get planet positions (above horizon) ---
     planets = {
-        "Moon": eph["moon"],
-        "Mercury": eph["mercury"],
-        "Venus": eph["venus"],
-        "Mars": eph["mars"],
-        "Jupiter": eph["jupiter barycenter"],
-        "Saturn": eph["saturn barycenter"],
-        "Uranus": eph["uranus barycenter"],
-        "Neptune": eph["neptune barycenter"],
+        "Moon": _EPH["moon"],
+        "Mercury": _EPH["mercury"],
+        "Venus": _EPH["venus"],
+        "Mars": _EPH["mars"],
+        "Jupiter": _EPH["jupiter barycenter"],
+        "Saturn": _EPH["saturn barycenter"],
+        "Uranus": _EPH["uranus barycenter"],
+        "Neptune": _EPH["neptune barycenter"],
     }
     planet_positions = {}
     for name, planet in planets.items():
@@ -78,15 +100,11 @@ def get_astronomical_data(place, time, mode="visible"):
             x, y = stereographic_from_altaz(alt.degrees, az.degrees)
             planet_positions[name] = (x, y)
 
-    # --- Load star catalog and constellations ---
-    with load.open(hipparcos.URL) as f:
-        stars = hipparcos.load_dataframe(f)
-
-    with load.open("./constellationship.fab") as f:
-        constellations = stellarium.parse_constellations(f)
-
-    with load.open("./constellation_abbreviations.json") as f:
-        const_names = json.load(f)
+    # --- Use cached star catalog and constellations ---
+    # Make a copy to avoid modifying the cached dataframe
+    stars = _STARS_CATALOG.copy()
+    constellations = _CONSTELLATIONS
+    const_names = _CONST_NAMES
 
     # --- Compute star alt/az ---
     star_positions = observer.at(t).observe(Star.from_dataframe(stars)).apparent()
