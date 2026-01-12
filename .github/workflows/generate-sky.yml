@@ -21,7 +21,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install skyfield geopy matplotlib numpy
+        pip install skyfield geopy matplotlib numpy pandas
 
     - name: Generate night sky images
       run: python daily.py
