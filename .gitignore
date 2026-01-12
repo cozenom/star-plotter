@@ -1,3 +1,10 @@
 # Data - downloaded automatically. 
 de421.bsp
 hip_main.dat
+
+# Pycache
+__pycache__/*
+
+# Random wip stuff
+ideas.txt
+*_old.py
