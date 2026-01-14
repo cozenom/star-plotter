@@ -71,9 +71,14 @@ def get_antipodal(lat, long):
     return -lat, (long + 180) if long < 0 else (long - 180)
 
 
-def get_astronomical_data(place, time, mode="visible"):
+def get_astronomical_data(place, time, mode="visible", lat=None, lon=None):
     # --- Location setup ---
-    LAT, LON, ELEV_M = getloc(place)
+    # Note: getloc returns (longitude, latitude, altitude) but unpacks to LAT, LON
+    # so LAT actually holds longitude and LON holds latitude (confusing but consistent)
+    if lat is not None and lon is not None:
+        LAT, LON, ELEV_M = lon, lat, 0
+    else:
+        LAT, LON, ELEV_M = getloc(place)
     original_coords = (LAT, LON)
 
     if mode == "nonvisible":
@@ -414,12 +419,14 @@ def plot_constellations(
     time=None,
     fname=None,
     mode="visible",
+    lat=None,
+    lon=None,
 ):
     # --- Side-by-side case ---
     if mode == "both":
         # Get astronomical data for both views
-        visible_data = get_astronomical_data(place, time, mode="visible")
-        not_visible_data = get_astronomical_data(place, time, mode="nonvisible")
+        visible_data = get_astronomical_data(place, time, mode="visible", lat=lat, lon=lon)
+        not_visible_data = get_astronomical_data(place, time, mode="nonvisible", lat=lat, lon=lon)
 
         # Create side-by-side plot
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 12))
@@ -461,7 +468,7 @@ def plot_constellations(
 
     # --- Single view case ---
     # Get astronomical data
-    data = get_astronomical_data(place, time, mode)
+    data = get_astronomical_data(place, time, mode, lat=lat, lon=lon)
 
     # Create single plot
     fig, ax = plt.subplots(figsize=(12, 12))

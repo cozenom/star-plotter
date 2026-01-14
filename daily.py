@@ -17,19 +17,19 @@ print("=" * 60)
 # Get current date (will use midnight for each timezone)
 today = datetime.now()
 
-# City configurations: (name, timezone)
+# City configurations: (name, timezone, lat, lon)
 cities = [
-    ("Los Angeles", "America/Los_Angeles"),
-    ("New York", "America/New_York"),
-    ("Ushuaia", "America/Argentina/Ushuaia"),
-    ("Berlin", "Europe/Berlin"),
-    ("Cape Town", "Africa/Johannesburg"),
-    ("Beijing", "Asia/Shanghai"),
-    ("Singapore", "Asia/Singapore"),
-    ("Sydney", "Australia/Sydney"),
+    ("Los Angeles", "America/Los_Angeles", 34.0522, -118.2437),
+    ("New York", "America/New_York", 40.7128, -74.0060),
+    ("Ushuaia", "America/Argentina/Ushuaia", -54.8019, -68.3030),
+    ("Berlin", "Europe/Berlin", 52.5200, 13.4050),
+    ("Cape Town", "Africa/Johannesburg", -33.9249, 18.4241),
+    ("Beijing", "Asia/Shanghai", 39.9042, 116.4074),
+    ("Singapore", "Asia/Singapore", 1.3521, 103.8198),
+    ("Sydney", "Australia/Sydney", -33.8688, 151.2093),
 ]
 
-for city, timezone in cities:
+for city, timezone, lat, lon in cities:
     print(f"\n{'='*60}")
     print(f"Generating sky for {city} at midnight local time")
     print(f"Timezone: {timezone}")
@@ -49,6 +49,8 @@ for city, timezone in cities:
         mode="visible",
         limiting_magnitude=6.0,
         fname=filename,
+        lat=lat,
+        lon=lon,
     )
 
     print(f"✓ {city} complete")
