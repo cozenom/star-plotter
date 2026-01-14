@@ -58,8 +58,8 @@ def getloc(name: str):
 
     if location:
         return (
-            location.point.longitude,
             location.point.latitude,
+            location.point.longitude,
             location.point.altitude,
         )
     else:
@@ -73,10 +73,8 @@ def get_antipodal(lat, long):
 
 def get_astronomical_data(place, time, mode="visible", lat=None, lon=None):
     # --- Location setup ---
-    # Note: getloc returns (longitude, latitude, altitude) but unpacks to LAT, LON
-    # so LAT actually holds longitude and LON holds latitude (confusing but consistent)
     if lat is not None and lon is not None:
-        LAT, LON, ELEV_M = lon, lat, 0
+        LAT, LON, ELEV_M = lat, lon, 0
     else:
         LAT, LON, ELEV_M = getloc(place)
     original_coords = (LAT, LON)
@@ -181,8 +179,7 @@ def get_astronomical_data(place, time, mode="visible", lat=None, lon=None):
                 )
 
     # --- Get timezone for the original location ---
-    # Note: original_coords is (LON, LAT) because getloc returns (longitude, latitude)
-    orig_lon, orig_lat = original_coords
+    orig_lat, orig_lon = original_coords
     timezone_str = _TF.timezone_at(lat=orig_lat, lng=orig_lon)
 
     # --- Return all data needed for plotting ---
