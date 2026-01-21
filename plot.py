@@ -116,7 +116,7 @@ def get_astronomical_data(place, time, mode="visible", lat=None, lon=None):
     const_names = _CONST_NAMES
 
     # --- Compute star alt/az ---
-    star_positions = observer.at(t).observe(Star.from_dataframe(stars)).apparent()
+    star_positions = observer.at(t).observe(Star.from_dataframe(stars)).apparent(deflectors=[])
     alt, az, _ = star_positions.altaz()
     stars["alt_degrees"] = alt.degrees
     stars["az_degrees"] = az.degrees
