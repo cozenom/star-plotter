@@ -28,10 +28,10 @@ jobs:
     - name: Cache Skyfield astronomical data
       uses: actions/cache@v3
       with:
-        path: ~/.skyfield
-        key: skyfield-data-${{ hashFiles('plot.py') }}
-        restore-keys: |
-          skyfield-data-
+        path: |
+          de421.bsp
+          hip_main.dat
+        key: skyfield-data-v1
 
     - name: Generate night sky images
       run: python daily.py
