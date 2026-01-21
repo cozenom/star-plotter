@@ -419,6 +419,9 @@ def plot_constellations(
     lat=None,
     lon=None,
 ):
+    # Normalize time once at the start
+    current_time = time if time else datetime.now(timezone.utc)
+
     # --- Side-by-side case ---
     if mode == "both":
         # Get astronomical data for both views
@@ -439,16 +442,9 @@ def plot_constellations(
 
         # Add main title with location's local time
         LAT, LON = visible_data["original_coords"]
-        current_time = time or datetime.now(timezone.utc)
         location_tz = visible_data["timezone"]
-
-        # Convert time to location's timezone
-        if location_tz:
-            local_time = current_time.astimezone(ZoneInfo(location_tz))
-            time_str = local_time.strftime("%Y-%m-%d %H:%M %Z")
-        else:
-            # Fallback to UTC if timezone lookup failed
-            time_str = current_time.strftime("%Y-%m-%d %H:%M UTC")
+        time_str = (current_time.astimezone(ZoneInfo(location_tz)).strftime("%Y-%m-%d %H:%M %Z")
+                    if location_tz else current_time.strftime("%Y-%m-%d %H:%M UTC"))
 
         main_title = f'Sky View from {place} — {time_str}\nLat {LAT:.4f}, Lon {LON:.4f}'
         fig.suptitle(main_title, fontsize=20, color="#FFFFFF", y=0.95)
@@ -476,16 +472,9 @@ def plot_constellations(
 
     # Add title with location's local time
     LAT, LON = data["coords"]
-    current_time = time or datetime.now(timezone.utc)
     location_tz = data["timezone"]
-
-    # Convert time to location's timezone
-    if location_tz:
-        local_time = current_time.astimezone(ZoneInfo(location_tz))
-        time_str = local_time.strftime("%Y-%m-%d %H:%M %Z")
-    else:
-        # Fallback to UTC if timezone lookup failed
-        time_str = current_time.strftime("%Y-%m-%d %H:%M UTC")
+    time_str = (current_time.astimezone(ZoneInfo(location_tz)).strftime("%Y-%m-%d %H:%M %Z")
+                if location_tz else current_time.strftime("%Y-%m-%d %H:%M UTC"))
 
     title = f'{"Visible" if mode == "visible" else "Not Visible"} Constellations {place} — {time_str}\nLat {LAT:.4f}, Lon {LON:.4f}'
     ax.set_title(title, fontsize=18, color="#FFFFFF", pad=14)

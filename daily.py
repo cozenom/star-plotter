@@ -14,9 +14,6 @@ print("=" * 60)
 print("DAILY SKY GENERATION")
 print("=" * 60)
 
-# Get current date (will use midnight for each timezone)
-today = datetime.now()
-
 # City configurations: (name, timezone, lat, lon)
 cities = [
     ("Los Angeles", "America/Los_Angeles", 34.0522, -118.2437),
